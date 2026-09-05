@@ -80,7 +80,7 @@ export default async function Dashboard() {
 
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-4 border-foreground pb-4">
         <div>
-          <h1 className="text-4xl font-black uppercase tracking-tighter">JAC-MATE // <span className="text-foreground/50">{profile.username}</span></h1>
+          <h1 className="text-4xl font-black uppercase tracking-tighter">CAMPUS DATE // <span className="text-foreground/50">{profile.username}</span></h1>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <Link href="/profile" className="brutal-button flex items-center gap-2 text-sm py-2 px-4 hover:bg-foreground hover:text-background transition-colors">

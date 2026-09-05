@@ -13,11 +13,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "JAC-MATE",
-  description: "Find your match",
+  title: {
+    default: "Campus Date | Hyper-Localized College Dating",
+    template: "%s | Campus Date",
+  },
+  description: "Join Campus Date, the exclusive hyper-localized dating and social platform for college students. Find your perfect match on campus safely and securely.",
+  keywords: ["campus dating", "college dating", "university matchmaking", "student dating app", "Campus Date", "find a match on campus"],
+  authors: [{ name: "Campus Date Team" }],
+  creator: "Campus Date",
+  publisher: "Campus Date",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://campusdate.vercel.app/", // Assuming vercel deployment
+    title: "Campus Date | College Dating Reimagined",
+    description: "The exclusive hyper-localized dating platform for college students. Find your match today.",
+    siteName: "Campus Date",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Campus Date | College Dating Reimagined",
+    description: "The exclusive hyper-localized dating platform for college students. Find your match today.",
+  },
+  alternates: {
+    canonical: "https://campusdate.vercel.app/",
+  },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"

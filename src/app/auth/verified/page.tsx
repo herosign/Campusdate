@@ -81,7 +81,7 @@ function VerifiedContent() {
         {/* Footer info */}
         <div className="text-center border-t border-foreground/20 pt-4">
           <span className="font-mono text-[11px] opacity-50 uppercase tracking-widest">
-            JAC-MATE // HYPER-LOCALIZED CAMPUS SYSTEM
+            CAMPUS DATE // HYPER-LOCALIZED CAMPUS SYSTEM
           </span>
         </div>
 

@@ -56,7 +56,7 @@ export default function Login() {
       <div className="brutal-glass max-w-md w-full p-8 space-y-8">
         <div className="space-y-2">
           <h1 className="text-4xl font-black uppercase tracking-tighter">
-            JAC-MATE
+            CAMPUS DATE
           </h1>
           <p className="font-mono text-sm opacity-60">
             {isSignUp ? 'CREATE YOUR ACCOUNT' : 'ACCESS THE SYSTEM'}

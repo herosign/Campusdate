@@ -44,7 +44,7 @@ export default function InstaPromptModal({ userId }: { userId: string }) {
         </div>
 
         <p className="font-mono text-sm opacity-70 mb-6 leading-relaxed">
-          JAC-MATE's "Mutual Reveal" feature needs your Instagram handle. It's <span className="font-bold text-foreground opacity-100">never shared automatically</span> — only if you AND your match both agree after 20 messages.
+          Campus Date's "Mutual Reveal" feature needs your Instagram handle. It's <span className="font-bold text-foreground opacity-100">never shared automatically</span> — only if you AND your match both agree after 20 messages.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
