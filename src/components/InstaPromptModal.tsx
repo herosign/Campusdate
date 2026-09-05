@@ -26,8 +26,8 @@ export default function InstaPromptModal({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="brutal-glass max-w-md w-full mx-4 p-8 border-4 border-foreground shadow-[8px_8px_0px_0px] relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-white dark:bg-[#15161c] text-zinc-900 dark:text-white max-w-md w-full p-8 border-4 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] relative">
         
         {/* dismiss button */}
         <button

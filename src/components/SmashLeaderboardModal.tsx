@@ -102,10 +102,10 @@ export default function SmashLeaderboardModal({ isOpen, onClose, currentUserId }
         key={entry.id}
         className={`p-3 sm:p-4 flex items-center justify-between gap-3 brutal-border transition-all ${
           isSelf
-            ? 'bg-yellow-400/20 border-yellow-400 dark:bg-yellow-400/10'
+            ? 'bg-yellow-400/25 border-yellow-500 dark:bg-yellow-400/15'
             : isTop3
-            ? 'bg-foreground/[0.04]'
-            : 'bg-background'
+            ? 'bg-zinc-100 dark:bg-zinc-800/60'
+            : 'bg-white dark:bg-zinc-900'
         }`}
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -182,15 +182,15 @@ export default function SmashLeaderboardModal({ isOpen, onClose, currentUserId }
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="brutal-glass max-w-2xl w-full max-h-[90vh] flex flex-col border-4 border-foreground shadow-[8px_8px_0px_0px] relative bg-background">
+      <div className="bg-white dark:bg-[#15161c] text-zinc-900 dark:text-white max-w-2xl w-full max-h-[90vh] flex flex-col border-4 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] relative overflow-hidden">
         
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b-4 border-foreground flex justify-between items-start bg-foreground text-background">
+        <div className="p-4 sm:p-6 border-b-4 border-foreground flex justify-between items-start bg-black text-white dark:bg-zinc-900 dark:text-white">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-yellow-400 text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
               <Trophy size={24} />
@@ -199,7 +199,7 @@ export default function SmashLeaderboardModal({ isOpen, onClose, currentUserId }
               <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight flex items-center gap-2">
                 SMASH METER LEADERBOARD
               </h2>
-              <p className="font-mono text-xs opacity-80">
+              <p className="font-mono text-xs text-zinc-300">
                 CAMPUS RANKINGS • {totalUsers > 0 ? `${totalUsers} ACTIVE PROFILES` : 'REAL-TIME'}
               </p>
             </div>
@@ -209,7 +209,7 @@ export default function SmashLeaderboardModal({ isOpen, onClose, currentUserId }
             <button
               onClick={fetchLeaderboard}
               disabled={loading}
-              className="p-2 hover:bg-background hover:text-foreground transition-colors border border-background cursor-pointer"
+              className="p-2 hover:bg-white hover:text-black transition-colors border border-white cursor-pointer"
               title="Refresh Leaderboard"
               aria-label="Refresh Leaderboard"
             >
@@ -217,7 +217,7 @@ export default function SmashLeaderboardModal({ isOpen, onClose, currentUserId }
             </button>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-background hover:text-foreground transition-colors border border-background font-black cursor-pointer"
+              className="p-2 hover:bg-white hover:text-black transition-colors border border-white font-black cursor-pointer"
               aria-label="Close modal"
             >
               <X size={18} />
@@ -286,11 +286,11 @@ export default function SmashLeaderboardModal({ isOpen, onClose, currentUserId }
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t-4 border-foreground bg-foreground/5 flex justify-between items-center text-xs font-mono">
-          <span className="opacity-70">Updated live from campus vibe checks</span>
+        <div className="p-4 border-t-4 border-foreground bg-zinc-100 dark:bg-zinc-900 flex justify-between items-center text-xs font-mono">
+          <span className="text-zinc-600 dark:text-zinc-400">Updated live from campus vibe checks</span>
           <button
             onClick={onClose}
-            className="brutal-button text-xs py-1.5 px-4"
+            className="brutal-button text-xs py-1.5 px-4 bg-white text-black dark:bg-zinc-800 dark:text-white"
           >
             CLOSE
           </button>

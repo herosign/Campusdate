@@ -48,8 +48,8 @@ export default function TagsPromptModal({ userId }: { userId: string }) {
   const categories = Array.from(new Set(availableTags.map(t => t.category)));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="brutal-glass max-w-2xl w-full mx-4 p-8 border-4 border-foreground shadow-[8px_8px_0px_0px] max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-white dark:bg-[#15161c] text-zinc-900 dark:text-white max-w-2xl w-full p-8 border-4 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] max-h-[90vh] flex flex-col">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-2 flex-shrink-0">

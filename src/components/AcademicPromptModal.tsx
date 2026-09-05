@@ -44,7 +44,7 @@ export default function AcademicPromptModal({ userId }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-      <div className="brutal-glass max-w-lg w-full p-8 border-4 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-6">
+      <div className="bg-white dark:bg-[#15161c] text-zinc-900 dark:text-white max-w-lg w-full p-8 border-4 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] space-y-6">
         
         <div className="flex items-center gap-3 border-b-4 border-foreground pb-3">
           <GraduationCap size={32} />

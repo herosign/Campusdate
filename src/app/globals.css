@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #d4d4d4; /* stark industrial light gray */
-  --foreground: #000000;
-  --glass-bg: rgba(255, 255, 255, 0.2);
+  --background: #f8f9fa; /* clean, vibrant, high-contrast neo-brutalist canvas */
+  --foreground: #0a0a0a;
+  --glass-bg: rgba(255, 255, 255, 0.95);
   --glass-border: rgba(0, 0, 0, 1);
 }
 
@@ -18,9 +18,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #121212; /* charcoal black */
+    --background: #0f1015; /* deep rich charcoal */
     --foreground: #ffffff;
-    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-bg: rgba(24, 24, 32, 0.95);
     --glass-border: rgba(255, 255, 255, 1);
   }
 }
@@ -30,9 +30,18 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   background-image: 
-    linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  min-height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  }
 }
 
 @layer utilities {
