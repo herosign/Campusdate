@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/client';
 import ImageUpload from '@/components/ImageUpload';
 import { Save, ArrowLeft, X, Plus, ExternalLink, HeartHandshake, UserX, XCircle, AtSign } from 'lucide-react';
 import SmashMeter from '@/components/SmashMeter';
+import LogoutButton from '@/components/LogoutButton';
 
 interface Props {
   profile: any;
@@ -138,7 +139,7 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
           </button>
           <h1 className="text-3xl font-black uppercase tracking-tight">Edit Profile</h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <SmashMeter score={profile.smash_meter_score} />
           <button
             onClick={handleSave}
@@ -148,6 +149,7 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
             <Save size={16} />
             {loading ? 'SAVING...' : saved ? '✓ SAVED!' : 'SAVE CHANGES'}
           </button>
+          <LogoutButton />
         </div>
       </div>
 
@@ -444,8 +446,9 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
         </div>
       </section>
 
-      {/* Save button at bottom too */}
-      <div className="border-t-4 border-foreground pt-6 flex justify-end">
+      {/* Save & Logout buttons at bottom */}
+      <div className="border-t-4 border-foreground pt-6 flex justify-between items-center flex-wrap gap-4">
+        <LogoutButton />
         <button
           onClick={handleSave}
           disabled={loading}

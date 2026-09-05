@@ -8,6 +8,7 @@ import InstaPromptModal from '@/components/InstaPromptModal';
 import TagsPromptModal from '@/components/TagsPromptModal';
 import AcademicPromptModal from '@/components/AcademicPromptModal';
 import SmashMeter from '@/components/SmashMeter';
+import LogoutButton from '@/components/LogoutButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,11 +75,12 @@ export default async function Dashboard() {
         <div>
           <h1 className="text-4xl font-black uppercase tracking-tighter">JAC-MATE // <span className="text-foreground/50">{profile.username}</span></h1>
         </div>
-        <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap">
           <Link href="/profile" className="brutal-button flex items-center gap-2 text-sm py-2 px-4 hover:bg-foreground hover:text-background transition-colors">
             <Settings size={16} /> Edit Profile
           </Link>
           <SmashMeter score={profile.smash_meter_score} />
+          <LogoutButton />
         </div>
       </header>
 

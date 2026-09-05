@@ -196,7 +196,12 @@ export default function ChatClient({
       <div className="col-span-1 flex flex-col h-full lg:border-l-4 border-foreground lg:pl-12 pb-8">
         {/* Header */}
         <div className="flex justify-between items-center pb-4 border-b-4 border-foreground mb-4">
-          <h2 className="text-2xl font-bold uppercase">COMM LINK</h2>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="brutal-border p-2 hover:bg-foreground hover:text-background transition-colors" title="Back to Dashboard">
+              <ArrowLeft size={18} />
+            </Link>
+            <h2 className="text-2xl font-bold uppercase">COMM LINK</h2>
+          </div>
           <div className="font-mono bg-foreground text-background px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
             {messageCount} / 20 MSGS
           </div>
