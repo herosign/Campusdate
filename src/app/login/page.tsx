@@ -22,9 +22,13 @@ export default function Login() {
     setMessage(null);
 
     if (isSignUp) {
+      const redirectUrl = `${window.location.origin}/auth/callback?next=/auth/verified`;
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
       });
       if (error) {
         setError(error.message);
