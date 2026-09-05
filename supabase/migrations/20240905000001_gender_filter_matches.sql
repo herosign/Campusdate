@@ -1,8 +1,11 @@
--- Update calculate_matches RPC to enforce strict gender-based matching:
+-- Drop existing function first because PostgreSQL does not allow modifying the return table signature with CREATE OR REPLACE FUNCTION
+DROP FUNCTION IF EXISTS calculate_matches(UUID);
+DROP FUNCTION IF EXISTS calculate_matches();
+
+-- Recreate calculate_matches RPC to enforce strict gender-based matching:
 -- Male users only receive Female profile recommendations
 -- Female users only receive Male profile recommendations
 -- Other genders receive all available recommendations
-
 CREATE OR REPLACE FUNCTION calculate_matches(current_user_id UUID) 
 RETURNS TABLE (
     profile_id UUID,
