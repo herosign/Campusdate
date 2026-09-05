@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Send, Handshake, AlertTriangle, XOctagon, ArrowLeft } from 'lucide-react';
+import { Send, Handshake, AlertTriangle, XOctagon, ArrowLeft, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { submitSocialHandshake } from '@/app/actions';
 import MoonRatingCard from '@/components/MoonRatingCard';
@@ -12,6 +12,10 @@ interface Message {
   sender_id: string;
   content: string;
   created_at: string;
+  // Optimistic UI fields (client-only, not from DB)
+  _optimistic?: boolean;
+  _failed?: boolean;
+  _tempId?: string;
 }
 
 interface Match {
@@ -34,6 +38,8 @@ interface ChatClientProps {
   existingRating?: 'FULL' | 'HALF' | 'QUARTER' | null;
 }
 
+let tempIdCounter = 0;
+
 export default function ChatClient({ 
   initialMessages, 
   match, 
@@ -50,15 +56,20 @@ export default function ChatClient({
     match.user1_id === currentUserId ? match.user1_reveal_consent : match.user2_reveal_consent
   );
   const [isTerminated, setIsTerminated] = useState(match.status === 'TERMINATED');
+  const [sending, setSending] = useState(false);
   
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
   const endRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Track optimistic message contents to deduplicate against realtime
+  const pendingOptimisticRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   useEffect(() => {
+    const supabase = supabaseRef.current;
     const channel = supabase.channel(`match_${match.id}`)
       .on('postgres_changes', {
         event: 'INSERT',
@@ -66,8 +77,41 @@ export default function ChatClient({
         table: 'messages',
         filter: `match_id=eq.${match.id}`
       }, (payload) => {
-        setMessages(prev => [...prev, payload.new as Message]);
-        setMessageCount(prev => prev + 1);
+        const serverMsg = payload.new as Message;
+
+        setMessages(prev => {
+          // Deduplicate: if this is our own message that we already showed optimistically,
+          // replace the optimistic placeholder with the real server message
+          if (serverMsg.sender_id === currentUserId) {
+            const optimisticIdx = prev.findIndex(
+              m => m._optimistic && m.content === serverMsg.content && m.sender_id === currentUserId
+            );
+            if (optimisticIdx !== -1) {
+              // Replace the optimistic message with the confirmed server message
+              const updated = [...prev];
+              updated[optimisticIdx] = serverMsg;
+              return updated;
+            }
+          }
+
+          // Check if this exact message ID already exists (prevent duplicates)
+          if (prev.some(m => m.id === serverMsg.id)) {
+            return prev;
+          }
+
+          return [...prev, serverMsg];
+        });
+
+        // Clean up pending tracking
+        if (serverMsg.sender_id === currentUserId) {
+          pendingOptimisticRef.current.delete(serverMsg.content);
+        }
+
+        setMessageCount(prev => {
+          // Only increment if this wasn't an optimistic message we already counted
+          const wasOptimistic = pendingOptimisticRef.current.has(serverMsg.content);
+          return wasOptimistic ? prev : prev + 1;
+        });
       })
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -86,26 +130,101 @@ export default function ChatClient({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [match.id, supabase]);
+  }, [match.id, currentUserId]);
 
-  const sendMessage = async (e: React.FormEvent) => {
+  const sendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || messageCount >= 20 || isTerminated) return;
-
     const msg = newMessage.trim();
-    setNewMessage('');
+    if (!msg || messageCount >= 20 || isTerminated || sending) return;
 
-    const { error } = await supabase.from('messages').insert([{
-      match_id: match.id,
+    const tempId = `_opt_${Date.now()}_${++tempIdCounter}`;
+    
+    // 1. Optimistic: show the message instantly
+    const optimisticMsg: Message = {
+      id: -Date.now(), // temporary negative ID
       sender_id: currentUserId,
-      content: msg
-    }]);
+      content: msg,
+      created_at: new Date().toISOString(),
+      _optimistic: true,
+      _tempId: tempId,
+    };
 
-    if (error) {
-      console.error(error);
-      alert('Failed to send message');
+    setMessages(prev => [...prev, optimisticMsg]);
+    setMessageCount(prev => prev + 1);
+    setNewMessage('');
+    setSending(true);
+    
+    // Track this content for deduplication
+    pendingOptimisticRef.current.add(msg);
+
+    // 2. Fire the actual insert to Supabase (non-blocking from UI perspective)
+    try {
+      const { error } = await supabaseRef.current.from('messages').insert([{
+        match_id: match.id,
+        sender_id: currentUserId,
+        content: msg
+      }]);
+
+      if (error) {
+        console.error('Message send error:', error);
+        // Mark optimistic message as failed
+        setMessages(prev =>
+          prev.map(m => m._tempId === tempId ? { ...m, _failed: true } : m)
+        );
+        setMessageCount(prev => prev - 1);
+        pendingOptimisticRef.current.delete(msg);
+      }
+    } catch (err) {
+      console.error('Network error sending message:', err);
+      setMessages(prev =>
+        prev.map(m => m._tempId === tempId ? { ...m, _failed: true } : m)
+      );
+      setMessageCount(prev => prev - 1);
+      pendingOptimisticRef.current.delete(msg);
+    } finally {
+      setSending(false);
+      // Re-focus the input for rapid follow-up messages
+      inputRef.current?.focus();
     }
-  };
+  }, [newMessage, messageCount, isTerminated, sending, currentUserId, match.id]);
+
+  const retryMessage = useCallback(async (failedMsg: Message) => {
+    const tempId = failedMsg._tempId!;
+    const content = failedMsg.content;
+
+    // Reset to optimistic (pending) state
+    setMessages(prev =>
+      prev.map(m => m._tempId === tempId ? { ...m, _failed: false, _optimistic: true } : m)
+    );
+    setMessageCount(prev => prev + 1);
+    pendingOptimisticRef.current.add(content);
+
+    try {
+      const { error } = await supabaseRef.current.from('messages').insert([{
+        match_id: match.id,
+        sender_id: currentUserId,
+        content
+      }]);
+
+      if (error) {
+        setMessages(prev =>
+          prev.map(m => m._tempId === tempId ? { ...m, _failed: true } : m)
+        );
+        setMessageCount(prev => prev - 1);
+        pendingOptimisticRef.current.delete(content);
+      }
+    } catch {
+      setMessages(prev =>
+        prev.map(m => m._tempId === tempId ? { ...m, _failed: true } : m)
+      );
+      setMessageCount(prev => prev - 1);
+      pendingOptimisticRef.current.delete(content);
+    }
+  }, [match.id, currentUserId]);
+
+  const dismissFailed = useCallback((tempId: string) => {
+    setMessages(prev => prev.filter(m => m._tempId !== tempId));
+  }, []);
 
   const handleHandshake = async (consent: boolean) => {
     try {
@@ -217,13 +336,37 @@ export default function ChatClient({
           {messages.map(msg => {
             const isMe = msg.sender_id === currentUserId;
             return (
-              <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`p-4 max-w-[85%] sm:max-w-[70%] font-medium leading-relaxed ${
-                    isMe 
-                    ? 'bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]' 
-                    : 'bg-background text-foreground brutal-border'
-                  }`}>
-                  {msg.content}
+              <div key={msg._tempId || msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                <div className="flex flex-col items-end gap-1 max-w-[85%] sm:max-w-[70%]">
+                  <div className={`p-4 w-full font-medium leading-relaxed ${
+                      isMe 
+                      ? `bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] ${msg._optimistic && !msg._failed ? 'opacity-70' : ''}` 
+                      : 'bg-background text-foreground brutal-border'
+                    }`}>
+                    {msg.content}
+                  </div>
+                  {/* Optimistic pending indicator */}
+                  {msg._optimistic && !msg._failed && (
+                    <span className="font-mono text-[10px] opacity-40 tracking-wider">SENDING...</span>
+                  )}
+                  {/* Failed message actions */}
+                  {msg._failed && (
+                    <div className="flex items-center gap-2 font-mono text-[10px]">
+                      <span className="text-red-500 font-bold">FAILED</span>
+                      <button
+                        onClick={() => retryMessage(msg)}
+                        className="text-red-500 hover:text-red-400 flex items-center gap-0.5 underline cursor-pointer"
+                      >
+                        <RefreshCw size={10} /> Retry
+                      </button>
+                      <button
+                        onClick={() => dismissFailed(msg._tempId!)}
+                        className="text-foreground/50 hover:text-foreground underline cursor-pointer"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -275,13 +418,19 @@ export default function ChatClient({
         ) : !isLimitReached && !bothConsented ? (
           <form onSubmit={sendMessage} className="flex gap-4">
             <input 
+              ref={inputRef}
               type="text" 
               className="flex-1 brutal-border p-4 bg-background focus:outline-none focus:ring-4 focus:ring-foreground/20 font-mono"
               placeholder="ENTER MESSAGE..."
               value={newMessage}
               onChange={e => setNewMessage(e.target.value)}
+              autoComplete="off"
             />
-            <button type="submit" className="brutal-button flex items-center justify-center w-16">
+            <button 
+              type="submit" 
+              className="brutal-button flex items-center justify-center w-16 disabled:opacity-50"
+              disabled={!newMessage.trim() || sending}
+            >
               <Send size={24} />
             </button>
           </form>
@@ -329,3 +478,4 @@ export default function ChatClient({
     </div>
   );
 }
+
