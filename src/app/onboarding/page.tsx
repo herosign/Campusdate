@@ -105,6 +105,7 @@ export default function Onboarding() {
       const { error: profileError } = await supabase.from('profiles').upsert([
         { 
           id: user.id,
+          email: user.email, // Save email in public.profiles table
           ...formData
         }
       ]);
