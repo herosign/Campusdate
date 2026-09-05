@@ -97,6 +97,34 @@ export default function Onboarding() {
   };
 
   const submitForm = async () => {
+    // Validate all mandatory fields
+    const requiredFields = [
+      { key: 'username', label: 'Username' },
+      { key: 'bio', label: 'Bio' },
+      { key: 'movie', label: 'Favorite Movie' },
+      { key: 'music', label: 'Music Vibe' },
+      { key: 'quote', label: 'Favorite Quote' },
+      { key: 'instagram_handle', label: 'Instagram Handle' },
+      { key: 'photo_url', label: 'Profile Photo' }
+    ];
+
+    for (const field of requiredFields) {
+      if (!formData[field.key as keyof typeof formData] || String(formData[field.key as keyof typeof formData]).trim() === '') {
+        alert(`Please fill out the "${field.label}" field.`);
+        return;
+      }
+    }
+
+    if (formData.hobbies.length === 0) {
+      alert("Please add at least one hobby.");
+      return;
+    }
+
+    if (selectedTags.length === 0) {
+      alert("Please select at least one tag.");
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
