@@ -156,14 +156,11 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
       {/* Photo */}
       <section className="space-y-4">
         <h2 className="text-lg font-black uppercase bg-foreground text-background inline-block px-2 py-1">Photo</h2>
-        <div className="flex gap-6 items-start">
-          {formData.photo_url && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={formData.photo_url} alt="profile" className="w-32 h-40 object-cover brutal-border flex-shrink-0" />
-          )}
-          <div className="flex-1">
-            <ImageUpload onUpload={(url) => setFormData({ ...formData, photo_url: url })} />
-          </div>
+        <div className="flex justify-center p-4 brutal-glass">
+          <ImageUpload
+            onUpload={(url) => setFormData(prev => ({ ...prev, photo_url: url }))}
+            currentImageUrl={formData.photo_url}
+          />
         </div>
       </section>
 

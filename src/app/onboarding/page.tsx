@@ -51,6 +51,34 @@ export default function Onboarding() {
   const [availableTags, setAvailableTags] = useState<any[]>([]);
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
 
+  // Restore draft state from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem('jac_mate_onboarding_draft');
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed.formData) setFormData(parsed.formData);
+        if (parsed.selectedTags) setSelectedTags(parsed.selectedTags);
+        if (parsed.step) setStep(parsed.step);
+      }
+    } catch (e) {
+      console.warn('Failed to restore draft onboarding data:', e);
+    }
+  }, []);
+
+  // Auto-save draft whenever inputs or steps change
+  useEffect(() => {
+    try {
+      localStorage.setItem('jac_mate_onboarding_draft', JSON.stringify({
+        formData,
+        selectedTags,
+        step,
+      }));
+    } catch (e) {
+      // Ignore quota errors
+    }
+  }, [formData, selectedTags, step]);
+
   // Fetch tags on mount
   useEffect(() => {
     const fetchTags = async () => {
@@ -95,6 +123,11 @@ export default function Onboarding() {
         if (tagError) throw tagError;
       }
       
+      // Clear saved draft on successful submission
+      try {
+        localStorage.removeItem('jac_mate_onboarding_draft');
+      } catch (e) {}
+
       router.push('/dashboard');
     } catch (error: any) {
       const msg = error?.message || JSON.stringify(error);
@@ -236,7 +269,10 @@ export default function Onboarding() {
 
               <div>
                 <label className="block font-bold mb-2 uppercase text-sm">3. Profile Photo</label>
-                <ImageUpload onUpload={(url) => setFormData({...formData, photo_url: url})} />
+                <ImageUpload
+                  onUpload={(url) => setFormData(prev => ({ ...prev, photo_url: url }))}
+                  currentImageUrl={formData.photo_url}
+                />
               </div>
 
               <div>
