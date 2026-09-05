@@ -157,13 +157,13 @@ export default function ChatClient({
     // Track this content for deduplication
     pendingOptimisticRef.current.add(msg);
 
-    // 2. Fire the actual insert to Supabase (non-blocking from UI perspective)
+    // 2. Fire the actual insert to Supabase
     try {
-      const { error } = await supabaseRef.current.from('messages').insert([{
+      const { data, error } = await supabaseRef.current.from('messages').insert([{
         match_id: match.id,
         sender_id: currentUserId,
         content: msg
-      }]);
+      }]).select().single();
 
       if (error) {
         console.error('Message send error:', error);
@@ -172,6 +172,12 @@ export default function ChatClient({
           prev.map(m => m._tempId === tempId ? { ...m, _failed: true } : m)
         );
         setMessageCount(prev => prev - 1);
+        pendingOptimisticRef.current.delete(msg);
+      } else if (data) {
+        // Success: replace optimistic message with real one from DB immediately
+        setMessages(prev => 
+          prev.map(m => m._tempId === tempId ? data : m)
+        );
         pendingOptimisticRef.current.delete(msg);
       }
     } catch (err) {
@@ -200,17 +206,22 @@ export default function ChatClient({
     pendingOptimisticRef.current.add(content);
 
     try {
-      const { error } = await supabaseRef.current.from('messages').insert([{
+      const { data, error } = await supabaseRef.current.from('messages').insert([{
         match_id: match.id,
         sender_id: currentUserId,
         content
-      }]);
+      }]).select().single();
 
       if (error) {
         setMessages(prev =>
           prev.map(m => m._tempId === tempId ? { ...m, _failed: true } : m)
         );
         setMessageCount(prev => prev - 1);
+        pendingOptimisticRef.current.delete(content);
+      } else if (data) {
+        setMessages(prev => 
+          prev.map(m => m._tempId === tempId ? data : m)
+        );
         pendingOptimisticRef.current.delete(content);
       }
     } catch {
