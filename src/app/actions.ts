@@ -11,17 +11,69 @@ export async function getMatches() {
     throw new Error('Not authenticated');
   }
 
-  // Call the matching algorithm RPC
+  // Get current user's profile to check gender
+  const { data: currentProfile } = await supabase
+    .from('profiles')
+    .select('gender')
+    .eq('id', user.id)
+    .single();
+
+  const userGender = currentProfile?.gender;
+  const targetGender = userGender === 'Male' ? 'Female' : userGender === 'Female' ? 'Male' : null;
+
+  // 1. Try calling the calculate_matches RPC
   const { data: matches, error } = await supabase.rpc('calculate_matches', {
     current_user_id: user.id
   });
 
-  if (error) {
-    console.error("Error fetching matches:", error);
-    return [];
+  if (!error && Array.isArray(matches) && matches.length > 0) {
+    // If targetGender is set, filter to ensure consistency
+    if (targetGender) {
+      return matches.filter((m: any) => !m.gender || m.gender === targetGender);
+    }
+    return matches;
   }
 
-  return matches;
+  if (error) {
+    console.warn("RPC calculate_matches error, falling back to direct query:", error.message);
+  }
+
+  // 2. Direct Query Fallback (in case RPC was not updated in DB)
+  let query = supabase
+    .from('profiles')
+    .select('id, username, bio, photo_url, gender, smash_meter_score')
+    .neq('id', user.id);
+
+  if (targetGender) {
+    query = query.eq('gender', targetGender);
+  }
+
+  // Exclude users already matched
+  const { data: existingMatches } = await supabase
+    .from('matches')
+    .select('user1_id, user2_id')
+    .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+
+  const matchedUserIds = new Set<string>();
+  (existingMatches || []).forEach((m: any) => {
+    matchedUserIds.add(m.user1_id);
+    matchedUserIds.add(m.user2_id);
+  });
+
+  const { data: fallbackProfiles } = await query.limit(30);
+
+  const filtered = (fallbackProfiles || [])
+    .filter((p: any) => !matchedUserIds.has(p.id))
+    .map((p: any) => ({
+      profile_id: p.id,
+      username: p.username,
+      bio: p.bio,
+      photo_url: p.photo_url,
+      gender: p.gender,
+      match_score: p.smash_meter_score || 0
+    }));
+
+  return filtered;
 }
 
 export async function initiateMatch(targetProfileId: string) {

@@ -1,7 +1,7 @@
 import { getMatches, initiateMatch } from '@/app/actions';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import { UserPlus, Settings } from 'lucide-react';
+import { UserPlus, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
 import InitiateButton from '@/components/InitiateButton';
 import InstaPromptModal from '@/components/InstaPromptModal';
@@ -35,14 +35,21 @@ export default async function Dashboard() {
     supabase.from('profile_tags').select('profile_id, tags(id, tag_name, category)').in('profile_id', matchIds)
   ]);
 
-  const enrichedMatches = potentialMatches.map((pm: any) => {
-    const fullProfile = fullProfiles?.find(fp => fp.id === pm.profile_id);
-    const userTags = (allMatchProfileTags || [])
-      .filter((pt: any) => pt.profile_id === pm.profile_id)
-      .map((pt: any) => pt.tags)
-      .filter(Boolean);
-    return { ...pm, ...fullProfile, tags: userTags };
-  });
+  const targetGender = profile.gender === 'Male' ? 'Female' : profile.gender === 'Female' ? 'Male' : null;
+
+  const enrichedMatches = potentialMatches
+    .map((pm: any) => {
+      const fullProfile = fullProfiles?.find(fp => fp.id === pm.profile_id);
+      const userTags = (allMatchProfileTags || [])
+        .filter((pt: any) => pt.profile_id === pm.profile_id)
+        .map((pt: any) => pt.tags)
+        .filter(Boolean);
+      return { ...pm, ...fullProfile, tags: userTags };
+    })
+    .filter((pm: any) => {
+      if (!targetGender) return true;
+      return pm.gender === targetGender;
+    });
   
   // Also fetch active matches for the chat list
   const { data: activeMatches } = await supabase
@@ -106,9 +113,29 @@ export default async function Dashboard() {
         {/* Potential Matches */}
         <div className="col-span-1 md:col-span-2 space-y-4">
           <h2 className="text-2xl font-bold uppercase bg-foreground text-background inline-block px-2 py-1">Algorithm Recommends</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {enrichedMatches.length === 0 && <p className="font-mono text-sm opacity-50">NO NEW MATCHES IN MATRIX</p>}
-            {enrichedMatches.map((pm: any) => (
+          {enrichedMatches.length === 0 ? (
+            <div className="brutal-glass p-8 sm:p-12 text-center space-y-5 border-2 border-dashed border-foreground/40 col-span-full">
+              <div className="inline-flex p-4 brutal-border bg-foreground text-background">
+                <Users size={36} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black uppercase tracking-tight">NO MATCHES CURRENTLY FOUND</h3>
+                <p className="font-mono text-sm max-w-lg mx-auto opacity-75 leading-relaxed">
+                  {profile.gender === 'Male' && "Scanning exclusively for Female profiles across JAC Delhi campuses. No new profiles available right now."}
+                  {profile.gender === 'Female' && "Scanning exclusively for Male profiles across JAC Delhi campuses. No new profiles available right now."}
+                  {profile.gender !== 'Male' && profile.gender !== 'Female' && "No new profiles matching your matrix tags right now."}
+                </p>
+              </div>
+              <div className="p-4 brutal-border bg-foreground/5 max-w-md mx-auto font-mono text-xs text-left space-y-1.5 opacity-80">
+                <p className="font-bold uppercase tracking-wider">// SYSTEM ADVISORY:</p>
+                <p>• Check back as more students complete onboarding.</p>
+                <p>• Invite campus classmates to expand your matrix pool.</p>
+                <p>• Each referral boosts your Smash Meter score (+1 point).</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {enrichedMatches.map((pm: any) => (
               <div key={pm.profile_id} className="brutal-glass p-6 flex flex-col gap-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -152,7 +179,8 @@ export default async function Dashboard() {
               </div>
             ))}
           </div>
-        </div>
+        )}
+      </div>
 
       </div>
     </div>
