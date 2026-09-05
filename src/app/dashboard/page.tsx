@@ -9,6 +9,7 @@ import TagsPromptModal from '@/components/TagsPromptModal';
 import AcademicPromptModal from '@/components/AcademicPromptModal';
 import SmashMeter from '@/components/SmashMeter';
 import LogoutButton from '@/components/LogoutButton';
+import TutorialButton from '@/components/TutorialButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,10 +84,11 @@ export default async function Dashboard() {
           <h1 className="text-4xl font-black uppercase tracking-tighter">CAMPUS DATE // <span className="text-foreground/50">{profile.username}</span></h1>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
+          <TutorialButton />
           <Link href="/profile" className="brutal-button flex items-center gap-2 text-sm py-2 px-4 hover:bg-foreground hover:text-background transition-colors">
             <Settings size={16} /> Edit Profile
           </Link>
-          <SmashMeter score={profile.smash_meter_score} />
+          <SmashMeter score={profile.smash_meter_score} userId={user.id} />
           <LogoutButton />
         </div>
       </header>
@@ -103,7 +105,7 @@ export default async function Dashboard() {
               return (
                 <Link key={match.id} href={`/chat/${match.id}`} className="brutal-glass p-4 hover:bg-foreground hover:text-background transition-colors flex justify-between items-center group">
                   <span className="font-bold uppercase tracking-wider">{otherUser.username}</span>
-                  <span className="font-mono text-xs opacity-70 group-hover:opacity-100">[{match.message_count}/20 MSG]</span>
+                  <span className="font-mono text-xs opacity-70 group-hover:opacity-100">[{match.message_count}/50 MSG]</span>
                 </Link>
               )
             })}

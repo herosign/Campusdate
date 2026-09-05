@@ -135,9 +135,9 @@ BEGIN
     SET message_count = message_count + 1
     WHERE id = NEW.match_id;
 
-    -- Prevent insert if message count exceeds 20
-    IF (SELECT message_count FROM public.matches WHERE id = NEW.match_id) > 20 THEN
-        RAISE EXCEPTION 'Message limit of 20 reached for this match.';
+    -- Prevent insert if message count exceeds 50
+    IF (SELECT message_count FROM public.matches WHERE id = NEW.match_id) > 50 THEN
+        RAISE EXCEPTION 'Message limit of 50 reached for this match.';
     END IF;
 
     RETURN NEW;

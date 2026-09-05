@@ -73,7 +73,7 @@ BEGIN
     p.email,
     COALESCE(
       (
-        SELECT json_agg(json_build_object('id', t.id, 'label', t.label, 'category', t.category))
+        SELECT json_agg(json_build_object('id', t.id, 'label', t.tag_name, 'category', t.category))
         FROM public.profile_tags pt
         JOIN public.tags t ON t.id = pt.tag_id
         WHERE pt.profile_id = p.id

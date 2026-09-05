@@ -6,6 +6,7 @@ import { Send, Handshake, AlertTriangle, XOctagon, ArrowLeft, RefreshCw } from '
 import Link from 'next/link';
 import { submitSocialHandshake } from '@/app/actions';
 import MoonRatingCard from '@/components/MoonRatingCard';
+import TutorialButton from '@/components/TutorialButton';
 
 interface Message {
   id: number;
@@ -135,7 +136,7 @@ export default function ChatClient({
   const sendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const msg = newMessage.trim();
-    if (!msg || messageCount >= 20 || isTerminated || sending) return;
+    if (!msg || messageCount >= 50 || isTerminated || sending) return;
 
     const tempId = `_opt_${Date.now()}_${++tempIdCounter}`;
     
@@ -252,7 +253,7 @@ export default function ChatClient({
     }
   };
 
-  const isLimitReached = messageCount >= 20;
+  const isLimitReached = messageCount >= 50;
   const bothConsented = (currentMatch.user1_reveal_consent && currentMatch.user2_reveal_consent) || initialBothConsented;
 
   return (
@@ -332,8 +333,11 @@ export default function ChatClient({
             </Link>
             <h2 className="text-2xl font-bold uppercase">COMM LINK</h2>
           </div>
-          <div className="font-mono bg-foreground text-background px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
-            {messageCount} / 20 MSGS
+          <div className="flex items-center gap-3">
+            <TutorialButton variant="compact" />
+            <div className="font-mono bg-foreground text-background px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] text-xs sm:text-sm">
+              {messageCount} / 50 MSGS
+            </div>
           </div>
         </div>
 

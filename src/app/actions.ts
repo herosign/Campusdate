@@ -156,3 +156,67 @@ export async function submitMoonRating(ratedUserId: string, moonType: 'FULL' | '
   revalidatePath('/dashboard');
   return { success: true };
 }
+
+export interface LeaderboardEntry {
+  rank: number;
+  id: string;
+  username: string;
+  smash_meter_score: number;
+  photo_url?: string | null;
+  gender?: string | null;
+  college?: string | null;
+  branch?: string | null;
+}
+
+export async function getSmashLeaderboard(currentUserId?: string) {
+  const supabase = await createClient();
+
+  let userId = currentUserId;
+  if (!userId) {
+    const { data: { user } } = await supabase.auth.getUser();
+    userId = user?.id;
+  }
+
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('id, username, smash_meter_score, photo_url, gender, college, branch, created_at')
+    .order('smash_meter_score', { ascending: false })
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching leaderboard:', error);
+    throw new Error('Failed to fetch leaderboard: ' + error.message);
+  }
+
+  const allProfiles = profiles || [];
+  const rankedProfiles: LeaderboardEntry[] = allProfiles.map((p, index) => ({
+    rank: index + 1,
+    id: p.id,
+    username: p.username || 'Anonymous',
+    smash_meter_score: Number(p.smash_meter_score) || 0,
+    photo_url: p.photo_url,
+    gender: p.gender,
+    college: p.college,
+    branch: p.branch,
+  }));
+
+  const top10 = rankedProfiles.slice(0, 10);
+
+  let currentUserEntry: LeaderboardEntry | null = null;
+  let isCurrentUserInTop10 = false;
+
+  if (userId) {
+    const userIndex = rankedProfiles.findIndex(p => p.id === userId);
+    if (userIndex !== -1) {
+      currentUserEntry = rankedProfiles[userIndex];
+      isCurrentUserInTop10 = userIndex < 10;
+    }
+  }
+
+  return {
+    top10,
+    currentUserEntry,
+    isCurrentUserInTop10,
+    totalUsers: rankedProfiles.length,
+  };
+}

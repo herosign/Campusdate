@@ -8,6 +8,7 @@ import { Save, ArrowLeft, X, Plus, ExternalLink, HeartHandshake, UserX, XCircle,
 import SmashMeter from '@/components/SmashMeter';
 import LogoutButton from '@/components/LogoutButton';
 import ChangePassword from '@/components/ChangePassword';
+import TutorialButton from '@/components/TutorialButton';
 
 interface Props {
   profile: any;
@@ -169,7 +170,8 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
           <h1 className="text-3xl font-black uppercase tracking-tight">Edit Profile</h1>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <SmashMeter score={profile.smash_meter_score} />
+          <TutorialButton />
+          <SmashMeter score={profile.smash_meter_score} userId={profile.id} />
           <button
             onClick={handleSave}
             disabled={loading}
@@ -370,7 +372,7 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
             <h3 className="font-black uppercase text-sm tracking-wider">Unlocked Social Identities ({revealedMatches.length})</h3>
           </div>
           {revealedMatches.length === 0 ? (
-            <p className="font-mono text-xs opacity-50 p-4 brutal-glass">No mutual reveals unlocked yet. Reach 20 messages with a match and grant mutual consent.</p>
+            <p className="font-mono text-xs opacity-50 p-4 brutal-glass">No mutual reveals unlocked yet. Reach 50 messages with a match and grant mutual consent.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {revealedMatches.map((m: any) => (
