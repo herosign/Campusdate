@@ -7,6 +7,7 @@ import ImageUpload from '@/components/ImageUpload';
 import { Save, ArrowLeft, X, Plus, ExternalLink, HeartHandshake, UserX, XCircle, AtSign } from 'lucide-react';
 import SmashMeter from '@/components/SmashMeter';
 import LogoutButton from '@/components/LogoutButton';
+import ChangePassword from '@/components/ChangePassword';
 
 interface Props {
   profile: any;
@@ -441,6 +442,11 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
             </div>
           )}
         </div>
+      </section>
+
+      {/* Account Security Section */}
+      <section className="mb-12">
+        <ChangePassword />
       </section>
 
       {/* Save & Logout buttons at bottom */}
