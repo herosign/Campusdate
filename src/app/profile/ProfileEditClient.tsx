@@ -234,7 +234,7 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
             ))}
           </div>
           {formData.gender === 'Others' && (
-            <div className="mt-3 p-3 brutal-border bg-yellow-500 text-black font-mono font-bold text-xs animate-bounce">
+            <div className="mt-3 p-3 rounded-xl bg-gradient-to-r from-rose-400 to-pink-500 text-white shadow-sm font-bold text-xs animate-pulse">
               ⚡ "You should send this link to your male and female friends" 💀
             </div>
           )}
@@ -283,14 +283,14 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
             rows={3}
             value={formData.bio}
             onChange={e => setFormData({ ...formData, bio: e.target.value })}
-            placeholder="Describe your architecture..."
+            placeholder="Describe your vibe..."
           />
         </div>
       </section>
 
       {/* The Core 5 */}
       <section className="space-y-4">
-        <h2 className="text-lg font-black uppercase bg-foreground text-background inline-block px-2 py-1">The Core 5</h2>
+        <h2 className="text-lg font-black uppercase bg-rose-500 text-white inline-block px-4 py-1 rounded-full shadow-sm">The Core 5</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {field('Favourite Movie', 'movie')}
           {field('Music Taste', 'music')}
@@ -300,9 +300,9 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
           <label className="block font-black uppercase text-xs tracking-widest mb-2">Hobbies (Max 5)</label>
           <div className="flex flex-wrap gap-2 mb-3">
             {formData.hobbies.map((h: string, i: number) => (
-              <div key={i} className="brutal-border px-3 py-1 bg-foreground text-background flex items-center gap-2 font-bold text-sm">
+              <div key={i} className="brutal-border px-3 py-1 bg-rose-100 text-rose-700 flex items-center gap-2 font-bold text-sm">
                 {h}
-                <button onClick={() => removeHobby(i)} className="hover:text-red-300"><X size={12} /></button>
+                <button onClick={() => removeHobby(i)} className="hover:text-rose-400"><X size={12} /></button>
               </div>
             ))}
           </div>
@@ -326,13 +326,13 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
       {/* Tags / The Matrix */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-black uppercase bg-foreground text-background inline-block px-2 py-1">The Matrix — Tags</h2>
-          <span className="font-mono text-sm opacity-60">{selectedTags.length} selected</span>
+          <h2 className="text-lg font-black uppercase bg-rose-500 text-white inline-block px-4 py-1 rounded-full shadow-sm">The Matrix — Tags</h2>
+          <span className="font-mono text-sm opacity-60 text-rose-600">{selectedTags.length} selected</span>
         </div>
         <div className="space-y-6">
           {categories.map(category => (
             <div key={category as string}>
-              <h3 className="font-black uppercase text-xs tracking-widest opacity-50 border-b border-foreground/20 pb-1 mb-3">
+              <h3 className="font-black uppercase text-xs tracking-widest text-rose-500/80 border-b border-rose-200 pb-1 mb-3">
                 {(category as string).replace(/_/g, ' ')}
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -342,10 +342,10 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
                     <button
                       key={tag.id}
                       onClick={() => toggleTag(tag.id)}
-                      className={`px-3 py-2 text-xs font-mono border-2 transition-all ${
+                      className={`px-3 py-2 text-xs font-bold rounded-full transition-all border ${
                         isSelected
-                          ? 'bg-foreground text-background border-foreground font-bold shadow-[3px_3px_0px_0px] translate-x-[-2px] translate-y-[-2px]'
-                          : 'bg-background text-foreground border-foreground/30 hover:border-foreground'
+                          ? 'bg-rose-500 text-white border-rose-600 shadow-md transform -translate-y-0.5'
+                          : 'bg-white text-zinc-600 border-rose-200 hover:border-rose-400 hover:bg-rose-50'
                       }`}
                     >
                       {tag.tag_name.replace(/^tag_/, '').replace(/_/g, ' ')}
@@ -359,48 +359,48 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
       </section>
 
       {/* 4. Matrix Encounters & Reveal History */}
-      <section className="space-y-6 pt-6 border-t-4 border-foreground">
+      <section className="space-y-6 pt-6 border-t border-rose-200">
         <div>
-          <h2 className="text-2xl font-black uppercase tracking-tight">Matrix History & Social Logs</h2>
-          <p className="font-mono text-xs opacity-70 mt-1">Records of your mutual reveals, declined requests, and rejections.</p>
+          <h2 className="text-2xl font-black uppercase tracking-tight text-rose-600">Match History & Social Logs</h2>
+          <p className="text-sm opacity-70 mt-1 text-zinc-600">Records of your mutual reveals, declined requests, and rejections.</p>
         </div>
 
         {/* Mutual Reveals */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <HeartHandshake className="text-green-500" size={20} />
-            <h3 className="font-black uppercase text-sm tracking-wider">Unlocked Social Identities ({revealedMatches.length})</h3>
+          <div className="flex items-center gap-2 text-pink-500">
+            <HeartHandshake size={20} />
+            <h3 className="font-bold uppercase text-sm tracking-wider">Unlocked Social Identities ({revealedMatches.length})</h3>
           </div>
           {revealedMatches.length === 0 ? (
-            <p className="font-mono text-xs opacity-50 p-4 brutal-glass">No mutual reveals unlocked yet. Reach 50 messages with a match and grant mutual consent.</p>
+            <p className="text-sm opacity-50 p-4 glass-panel">No mutual reveals unlocked yet. Reach 50 messages with a match and grant mutual consent.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {revealedMatches.map((m: any) => (
-                <div key={m.id} className="brutal-glass p-4 flex items-center justify-between border-2 border-green-500">
+                <div key={m.id} className="glass-panel p-4 flex items-center justify-between border border-pink-300">
                   <div className="flex items-center gap-3">
                     {m.other?.photo_url ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={m.other.photo_url} alt={m.other.username} className="w-12 h-12 object-cover brutal-border flex-shrink-0" />
+                      <img src={m.other.photo_url} alt={m.other.username} className="w-12 h-12 rounded-full object-cover shadow-sm flex-shrink-0" />
                     ) : (
-                      <div className="w-12 h-12 bg-foreground text-background font-black flex items-center justify-center text-sm brutal-border">
+                      <div className="w-12 h-12 rounded-full bg-pink-100 text-pink-600 font-bold flex items-center justify-center text-sm shadow-sm">
                         {m.other?.username?.[0]?.toUpperCase()}
                       </div>
                     )}
                     <div>
-                      <h4 className="font-black uppercase text-sm">{m.other?.username}</h4>
+                      <h4 className="font-bold uppercase text-sm">{m.other?.username}</h4>
                       {m.other?.instagram_handle && (
                         <a 
                           href={`https://instagram.com/${m.other.instagram_handle}`} 
                           target="_blank" 
                           rel="noreferrer"
-                          className="font-mono text-xs text-pink-500 font-bold hover:underline flex items-center gap-1"
+                          className="text-xs text-pink-500 font-bold hover:underline flex items-center gap-1"
                         >
                           <AtSign size={12} />{m.other.instagram_handle} <ExternalLink size={10} />
                         </a>
                       )}
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono bg-green-500 text-black px-2 py-1 font-bold">REVEALED</span>
+                  <span className="text-[10px] bg-gradient-to-r from-pink-400 to-rose-400 text-white px-3 py-1 rounded-full font-bold shadow-sm">REVEALED</span>
                 </div>
               ))}
             </div>
@@ -409,31 +409,31 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
 
         {/* Rejected by You */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <UserX className="text-yellow-500" size={20} />
-            <h3 className="font-black uppercase text-sm tracking-wider">Rejected By You ({rejectedByMe.length})</h3>
+          <div className="flex items-center gap-2 text-zinc-500">
+            <UserX size={20} />
+            <h3 className="font-bold uppercase text-sm tracking-wider">Rejected By You ({rejectedByMe.length})</h3>
           </div>
           {rejectedByMe.length === 0 ? (
-            <p className="font-mono text-xs opacity-50 p-4 brutal-glass">No declined links.</p>
+            <p className="text-sm opacity-50 p-4 glass-panel">No declined links.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {rejectedByMe.map((m: any) => (
-                <div key={m.id} className="brutal-glass p-3 flex items-center justify-between opacity-80">
+                <div key={m.id} className="glass-panel p-3 flex items-center justify-between opacity-80">
                   <div className="flex items-center gap-3">
                     {m.other?.photo_url ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={m.other.photo_url} alt={m.other.username} className="w-10 h-10 object-cover brutal-border grayscale" />
+                      <img src={m.other.photo_url} alt={m.other.username} className="w-10 h-10 rounded-full object-cover grayscale opacity-70" />
                     ) : (
-                      <div className="w-10 h-10 bg-foreground text-background font-black flex items-center justify-center text-xs brutal-border">
+                      <div className="w-10 h-10 rounded-full bg-zinc-200 text-zinc-500 font-bold flex items-center justify-center text-xs">
                         {m.other?.username?.[0]?.toUpperCase()}
                       </div>
                     )}
                     <div>
-                      <h4 className="font-bold uppercase text-xs">{m.other?.username}</h4>
-                      <span className="font-mono text-[10px] text-yellow-400 font-bold">"You deserve better"</span>
+                      <h4 className="font-bold uppercase text-xs text-zinc-600">{m.other?.username}</h4>
+                      <span className="text-[10px] text-zinc-400 font-medium">"You deserve better"</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono bg-yellow-500 text-black px-2 py-0.5 font-bold">DECLINED</span>
+                  <span className="text-[10px] bg-zinc-200 text-zinc-600 px-2 py-0.5 rounded-full font-bold">DECLINED</span>
                 </div>
               ))}
             </div>
@@ -442,12 +442,12 @@ export default function ProfileEditClient({ profile, allTags, initialSelectedTag
 
         {/* Rejected You */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <XCircle className="text-red-500" size={20} />
-            <h3 className="font-black uppercase text-sm tracking-wider">Declined You — "Game Not Strong" ({rejectedMe.length})</h3>
+          <div className="flex items-center gap-2 text-rose-500">
+            <XCircle size={20} />
+            <h3 className="font-bold uppercase text-sm tracking-wider">Declined You — "Game Not Strong" ({rejectedMe.length})</h3>
           </div>
           {rejectedMe.length === 0 ? (
-            <p className="font-mono text-xs opacity-50 p-4 brutal-glass">Nobody has rejected you.</p>
+            <p className="text-sm opacity-50 p-4 glass-panel">Nobody has rejected you.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {rejectedMe.map((m: any) => (

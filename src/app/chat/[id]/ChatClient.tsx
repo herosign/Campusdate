@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { submitSocialHandshake } from '@/app/actions';
 import MoonRatingCard from '@/components/MoonRatingCard';
 import TutorialButton from '@/components/TutorialButton';
+import { useUITheme } from '@/context/ThemeContext';
 
 interface Message {
   id: number;
@@ -58,6 +59,8 @@ export default function ChatClient({
   );
   const [isTerminated, setIsTerminated] = useState(match.status === 'TERMINATED');
   const [sending, setSending] = useState(false);
+  
+  const { uiTheme, mounted } = useUITheme();
   
   const supabaseRef = useRef(createClient());
   const endRef = useRef<HTMLDivElement>(null);
@@ -268,17 +271,17 @@ export default function ChatClient({
             </h2>
             {(otherUser.college || otherUser.branch || otherUser.year || otherUser.gender) && (
               <div className="flex flex-wrap gap-1.5 mt-2 font-mono text-xs font-bold">
-                {otherUser.gender && <span className="bg-foreground/10 px-2 py-0.5">{otherUser.gender}</span>}
-                {otherUser.college && <span className="bg-foreground text-background px-2 py-0.5">{otherUser.college}</span>}
+                {otherUser.gender && <span className={uiTheme === 'neo-brutal' ? "bg-zinc-200 text-black px-2 py-0.5 border-2 border-transparent" : "bg-foreground/10 px-2 py-0.5"}>{otherUser.gender}</span>}
+                {otherUser.college && <span className={uiTheme === 'neo-brutal' ? "bg-black text-white px-2 py-0.5 border-2 border-black" : "bg-foreground text-background px-2 py-0.5"}>{otherUser.college}</span>}
                 {otherUser.branch && <span className="border-2 border-foreground px-2 py-0.5">{otherUser.branch}</span>}
-                {otherUser.year && <span className="border-2 border-foreground px-2 py-0.5">{otherUser.year} Year</span>}
+                {otherUser.year && <span className="border-2 border-foreground px-2 py-0.5">{otherUser.year}</span>}
               </div>
             )}
           </div>
           <span className="font-mono text-sm font-bold bg-foreground text-background px-2 py-1 flex-shrink-0">PROFILE</span>
         </div>
 
-        {otherUser.photo_url && (
+        {otherUser.photo_url && uiTheme === 'romantic' && (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img 
             src={otherUser.photo_url} 
@@ -287,7 +290,7 @@ export default function ChatClient({
           />
         )}
         
-        <div className="brutal-glass p-6 mt-4">
+        <div className={uiTheme === 'neo-brutal' ? "border-4 border-black dark:border-white p-6 mt-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] bg-white dark:bg-black" : "brutal-glass p-6 mt-4"}>
           <p className="text-lg font-medium italic border-l-4 border-foreground pl-4 mb-6">"{otherUser.bio}"</p>
           
           <div className="space-y-4 font-mono text-sm">
@@ -342,7 +345,7 @@ export default function ChatClient({
         </div>
 
         {/* Message List */}
-        <div className="flex-1 overflow-y-auto space-y-4 p-6 brutal-glass mb-4 shadow-[inset_0px_0px_10px_rgba(0,0,0,0.1)]">
+        <div className={`flex-1 overflow-y-auto space-y-4 p-6 mb-4 ${uiTheme === 'neo-brutal' ? 'border-4 border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] bg-white dark:bg-black' : 'brutal-glass shadow-[inset_0px_0px_10px_rgba(0,0,0,0.1)]'}`}>
           {messages.length === 0 && (
              <div className="h-full flex items-center justify-center font-mono opacity-50 uppercase text-center">
                 Comm link established.<br/>Send the first message.
@@ -355,8 +358,14 @@ export default function ChatClient({
                 <div className="flex flex-col items-end gap-1 max-w-[85%] sm:max-w-[70%]">
                   <div className={`p-4 w-full font-medium leading-relaxed ${
                       isMe 
-                      ? `bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] ${msg._optimistic && !msg._failed ? 'opacity-70' : ''}` 
-                      : 'bg-background text-foreground brutal-border'
+                      ? (uiTheme === 'neo-brutal' 
+                          ? `bg-black text-white dark:bg-white dark:text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] ${msg._optimistic && !msg._failed ? 'opacity-70' : ''}`
+                          : `bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] rounded-3xl rounded-tr-none ${msg._optimistic && !msg._failed ? 'opacity-70' : ''}`
+                        )
+                      : (uiTheme === 'neo-brutal'
+                          ? 'bg-white text-black dark:bg-black dark:text-white border-4 border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]'
+                          : 'bg-background text-foreground brutal-border rounded-3xl rounded-tl-none'
+                        )
                     }`}>
                     {msg.content}
                   </div>
@@ -395,28 +404,28 @@ export default function ChatClient({
             const isTerminatedByMe = currentMatch.terminated_by === currentUserId;
             return (
               <div className="space-y-4">
-                <div className={`brutal-border p-6 bg-black text-white flex flex-col items-center justify-center space-y-4 text-center border-4 ${
-                  isTerminatedByMe ? 'border-yellow-500 shadow-[8px_8px_0px_0px_rgba(234,179,8,1)]' : 'border-red-500 shadow-[8px_8px_0px_0px_rgba(239,68,68,1)]'
+                <div className={`glass-panel p-8 flex flex-col items-center justify-center space-y-4 text-center border ${
+                  isTerminatedByMe ? 'border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50' : 'border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20'
                 }`}>
-                  <div className={`${isTerminatedByMe ? 'bg-yellow-500 text-black' : 'bg-red-600 text-white'} p-3 rounded-full`}>
-                    <XOctagon size={40} />
+                  <div className={`${isTerminatedByMe ? 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400' : 'bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400'} p-4 rounded-full shadow-sm`}>
+                    <XOctagon size={44} />
                   </div>
-                  <h3 className={`text-2xl font-black uppercase tracking-wider ${isTerminatedByMe ? 'text-yellow-400' : 'text-red-500'}`}>
+                  <h3 className={`text-2xl font-bold tracking-tight ${isTerminatedByMe ? 'text-zinc-700 dark:text-zinc-300' : 'text-rose-600 dark:text-rose-400'}`}>
                     {isTerminatedByMe ? 'LINK DECLINED BY YOU' : 'PROTOCOL TERMINATED'}
                   </h3>
-                  <p className={`text-xl font-black font-mono uppercase px-4 py-2 border-2 ${
+                  <p className={`text-lg font-medium px-5 py-2.5 rounded-full border ${
                     isTerminatedByMe 
-                      ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500' 
-                      : 'bg-red-950/80 text-red-200 border-red-600'
+                      ? 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700' 
+                      : 'bg-white dark:bg-zinc-900 text-rose-500 border-rose-200 dark:border-rose-900/50'
                   }`}>
                     {isTerminatedByMe ? '"You deserve better"' : '"Your game is not strong"'}
                   </p>
-                  <p className="font-mono text-xs opacity-70 max-w-md">
+                  <p className="text-sm opacity-80 max-w-md text-zinc-600 dark:text-zinc-400 mt-2">
                     {isTerminatedByMe 
                       ? 'You chose to decline the identity reveal. This communication protocol is permanently closed.' 
                       : 'The other user declined the mutual reveal request. Communication has been terminated.'}
                   </p>
-                  <Link href="/dashboard" className="brutal-button bg-white text-black hover:bg-gray-200 mt-2 inline-flex items-center gap-2">
+                  <Link href="/dashboard" className="mt-4 px-6 py-2.5 rounded-full font-bold text-sm bg-zinc-800 text-white hover:bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-800 dark:hover:bg-white transition-colors inline-flex items-center gap-2">
                     <ArrowLeft size={16} /> RETURN TO MATRIX
                   </Link>
                 </div>

@@ -36,10 +36,10 @@ export default function TutorialButton({ className = '', variant = 'button' }: P
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className={`brutal-button bg-background text-foreground hover:bg-foreground hover:text-background flex items-center gap-2 text-sm py-2 px-4 transition-colors ${className}`}
+          className={`brutal-button bg-background text-foreground hover:bg-foreground hover:text-background flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm py-2 px-3 sm:px-4 transition-colors ${className}`}
           title="Learn how chatting & mutual reveal work"
         >
-          <BookOpen size={16} className="text-yellow-500" />
+          <BookOpen size={14} className="text-rose-500" />
           <span>HOW IT WORKS</span>
         </button>
       )}
