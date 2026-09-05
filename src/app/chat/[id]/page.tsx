@@ -2,6 +2,8 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import ChatClient from './ChatClient';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ChatPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const supabase = await createClient();

@@ -9,6 +9,8 @@ import TagsPromptModal from '@/components/TagsPromptModal';
 import AcademicPromptModal from '@/components/AcademicPromptModal';
 import SmashMeter from '@/components/SmashMeter';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Dashboard() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
