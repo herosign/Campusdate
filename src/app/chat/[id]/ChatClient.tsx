@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Send, Handshake, AlertTriangle, XOctagon, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Send, Handshake, AlertTriangle, XOctagon, ArrowLeft, RefreshCw, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { submitSocialHandshake } from '@/app/actions';
 import MoonRatingCard from '@/components/MoonRatingCard';
@@ -59,6 +59,7 @@ export default function ChatClient({
   );
   const [isTerminated, setIsTerminated] = useState(match.status === 'TERMINATED');
   const [sending, setSending] = useState(false);
+  const [showMobileProfile, setShowMobileProfile] = useState(false);
   
   const { uiTheme, mounted } = useUITheme();
   
@@ -262,8 +263,8 @@ export default function ChatClient({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 h-[calc(100vh-8rem)]">
       
-      {/* Profile Details (Left Side) */}
-      <div className="col-span-1 flex flex-col gap-6 overflow-y-auto pb-8 pr-4 custom-scrollbar">
+      {/* Profile Details (Left Side) — hidden on mobile, visible on lg+ */}
+      <div className="hidden lg:flex col-span-1 flex-col gap-6 overflow-y-auto pb-8 pr-4 custom-scrollbar">
         <div className="flex justify-between items-end border-b-4 border-foreground pb-2">
           <div>
             <h2 className="text-4xl font-black uppercase tracking-widest leading-none">
@@ -291,7 +292,7 @@ export default function ChatClient({
         )}
         
         <div className={uiTheme === 'neo-brutal' ? "border-4 border-black dark:border-white p-6 mt-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] bg-white dark:bg-black" : "brutal-glass p-6 mt-4"}>
-          <p className="text-lg font-medium italic border-l-4 border-foreground pl-4 mb-6">"{otherUser.bio}"</p>
+          <p className="text-lg font-medium italic border-l-4 border-foreground pl-4 mb-6">&quot;{otherUser.bio}&quot;</p>
           
           <div className="space-y-4 font-mono text-sm">
             {otherUser.quote && (
@@ -326,6 +327,104 @@ export default function ChatClient({
         </div>
       </div>
 
+      {/* Mobile Profile Slide-Out Panel */}
+      {showMobileProfile && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowMobileProfile(false)}
+          />
+          {/* Panel */}
+          <div className={`absolute inset-y-0 left-0 w-[85%] max-w-sm overflow-y-auto animate-in slide-in-from-left duration-300 ${
+            uiTheme === 'neo-brutal'
+              ? 'bg-white dark:bg-black border-r-4 border-black dark:border-white'
+              : 'bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-r border-rose-200/50 dark:border-rose-800/50'
+          }`}>
+            {/* Panel Header */}
+            <div className={`sticky top-0 z-10 flex justify-between items-center p-4 ${
+              uiTheme === 'neo-brutal'
+                ? 'bg-black text-white border-b-4 border-black'
+                : 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
+            }`}>
+              <h3 className="text-lg font-bold uppercase tracking-wider">
+                {otherUser.username}
+              </h3>
+              <button
+                onClick={() => setShowMobileProfile(false)}
+                className={`p-2 ${
+                  uiTheme === 'neo-brutal'
+                    ? 'border-2 border-white hover:bg-white/20'
+                    : 'rounded-full hover:bg-white/20'
+                } transition-colors`}
+                aria-label="Close profile"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Panel Body */}
+            <div className="p-4 space-y-4">
+              {/* Tags */}
+              {(otherUser.college || otherUser.branch || otherUser.year || otherUser.gender) && (
+                <div className="flex flex-wrap gap-1.5 font-mono text-xs font-bold">
+                  {otherUser.gender && <span className={uiTheme === 'neo-brutal' ? "bg-zinc-200 text-black px-2 py-0.5 border-2 border-transparent" : "bg-foreground/10 px-2 py-0.5"}>{otherUser.gender}</span>}
+                  {otherUser.college && <span className={uiTheme === 'neo-brutal' ? "bg-black text-white px-2 py-0.5 border-2 border-black" : "bg-foreground text-background px-2 py-0.5"}>{otherUser.college}</span>}
+                  {otherUser.branch && <span className="border-2 border-foreground px-2 py-0.5">{otherUser.branch}</span>}
+                  {otherUser.year && <span className="border-2 border-foreground px-2 py-0.5">{otherUser.year}</span>}
+                </div>
+              )}
+
+              {/* Photo */}
+              {otherUser.photo_url && uiTheme === 'romantic' && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img 
+                  src={otherUser.photo_url} 
+                  alt={otherUser.username} 
+                  className="w-full aspect-[4/5] object-cover brutal-border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]" 
+                />
+              )}
+              
+              {/* Bio & Details */}
+              <div className={uiTheme === 'neo-brutal' ? "border-4 border-black dark:border-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] bg-white dark:bg-black" : "brutal-glass p-4"}>
+                <p className="text-base font-medium italic border-l-4 border-foreground pl-3 mb-4">&quot;{otherUser.bio}&quot;</p>
+                
+                <div className="space-y-3 font-mono text-sm">
+                  {otherUser.quote && (
+                    <div>
+                      <span className="block font-black uppercase mb-1">Quote:</span> 
+                      <span className="bg-foreground/10 px-2 py-1">{otherUser.quote}</span>
+                    </div>
+                  )}
+                  {otherUser.movie && (
+                    <div>
+                      <span className="block font-black uppercase mb-1">Fav Movie:</span> 
+                      <span className="bg-foreground/10 px-2 py-1">{otherUser.movie}</span>
+                    </div>
+                  )}
+                  {otherUser.music && (
+                    <div>
+                      <span className="block font-black uppercase mb-1">Music Vibe:</span> 
+                      <span className="bg-foreground/10 px-2 py-1">{otherUser.music}</span>
+                    </div>
+                  )}
+                  {otherUser.hobbies && otherUser.hobbies.length > 0 && (
+                    <div>
+                      <span className="block font-black uppercase mb-2">Hobbies:</span>
+                      <div className="flex flex-wrap gap-2">
+                        {otherUser.hobbies.map((h: string) => (
+                          <span key={h} className="bg-foreground text-background px-2 py-1 font-bold text-xs">{h}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Chat Interface (Right Side) */}
       <div className="col-span-1 flex flex-col h-full lg:border-l-4 border-foreground lg:pl-12 pb-8">
         {/* Header */}
@@ -337,6 +436,19 @@ export default function ChatClient({
             <h2 className="text-2xl font-bold uppercase">COMM LINK</h2>
           </div>
           <div className="flex items-center gap-3">
+            {/* Mobile Profile Toggle — visible only on small screens */}
+            <button
+              onClick={() => setShowMobileProfile(true)}
+              className={`lg:hidden p-2 transition-colors ${
+                uiTheme === 'neo-brutal'
+                  ? 'bg-black text-white border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                  : 'brutal-border hover:bg-foreground hover:text-background'
+              }`}
+              title="View Profile"
+              aria-label="View match profile"
+            >
+              <User size={18} />
+            </button>
             <TutorialButton variant="compact" />
             <div className="font-mono bg-foreground text-background px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] text-xs sm:text-sm">
               {messageCount} / 50 MSGS
